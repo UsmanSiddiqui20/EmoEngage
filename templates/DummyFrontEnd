@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmoEngage.AI</title>
+<style>
+  body {
+    margin-top: 100px;
+    position: relative;
+  }
+
+  .container {
+    position: relative;
+  }
+
+  .window {
+    width: 300px;
+    height: 300px;
+    border: 2px solid black;
+    margin: 10px;
+    display: inline-block;
+    position: relative;
+  }
+
+  .title {
+    position: absolute;
+    top: -20px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+  }
+
+  h1 {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    font-weight: bold;
+  }
+
+  .top-right {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    list-style: none;
+  }
+
+  .top-right li {
+    display: inline;
+    margin-left: 10px;
+  }
+</style>
+</head>
+<body>
+  <h1>EmoEngage.AI</h1>
+  <ul class="top-right">
+    <li><a href="page1.html">Page 1</a></li>
+    <li><a href="page2.html">Page 2</a></li>
+    <li><a href="page3.html">Page 3</a></li>
+  </ul>
+  <div class="container">
+    <div class="window">
+      <div class="title">Video Feed</div>
+    </div>
+    <div class="window">
+      <div class="title">Graph</div>
+    </div>
+    <div class="window">
+      <div class="title">Student Information</div>
+    </div>
+  </div>
+</body>
+</html>
