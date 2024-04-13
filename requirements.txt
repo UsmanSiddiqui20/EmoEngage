@@ -11,3 +11,10 @@ mtcnn>=0.1.0
 retina-face>=0.0.1
 fire>=0.4.0
 gunicorn>=20.1.0
+
+NOTE: Install following libraries in order to run setup of EmoEngae Flask App
+1. Python 3.9
+2. Flask
+3. Matplotlib
+4. Tensorflow version 2.10.1
+5. cv2
