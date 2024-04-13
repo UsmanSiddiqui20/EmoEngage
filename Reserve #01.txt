@@ -1,0 +1,360 @@
+<<<<<<<<<<<<<<<<<<<<WORKING APP #01>>>>>>>>>>>>>>>>>>>
+
+~~~~~~~~~app.py~~~~~~~~~~~~~~~
+from flask import Flask, render_template, Response
+import cv2
+from deepface import DeepFace
+
+app = Flask(__name__)
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+emotion_model = DeepFace.build_model('Emotion')
+url = 'http://192.168.18.19:4747'
+
+def detect_emotion():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray_image, scaleFactor=1.3, minNeighbors=5)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            face_roi = frame[y:y+h, x:x+w]
+            result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
+            if result:
+                first_result = result[0]
+                emotion = first_result['emotion']
+                max_key = max(emotion, key=lambda k: emotion[k])
+                cv2.putText(frame, f"Emotion: {max_key}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(detect_emotion(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+~~~~~~~~~index.html~~~~~~~~~~~
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+</head>
+<body>
+    <h1>Emotion Detection</h1>
+    <img src="{{ url_for('video_feed') }}" alt="Emotion Detection">
+</body>
+</html>
+
+
+
+
+<<<<<<<<<<<<<<<<<<<<<<<<VOLUME #02>>>>>>>>>>>>>>>>>>>>>>>
+
+<<<<<app.py  #02 >>>>>
+from flask import Flask, render_template, Response, send_from_directory
+import cv2
+from deepface import DeepFace
+import time
+import matplotlib.pyplot as plt
+import os
+
+app = Flask(__name__)
+STATIC_FOLDER = r'P:\Working Directories\Flask\EmoEngage_3.9\static'
+app.config['STATIC_FOLDER'] = STATIC_FOLDER
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+emotion_model = DeepFace.build_model('Emotion')
+url = 'http://192.168.18.19:4747'
+
+emotion_data = {'time': [], 'anger': [], 'disgust': [], 'fear': [], 'happy': [], 'sad': [], 'surprise': [], 'neutral': []}
+start_time = time.time()
+
+def detect_emotion():
+    cap = cv2.VideoCapture(1)
+    while True:
+        ret, frame = cap.read()
+        gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray_image, scaleFactor=1.3, minNeighbors=5)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            face_roi = frame[y:y+h, x:x+w]
+            result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
+            if result:
+                first_result = result[0]
+                emotion = first_result['emotion']
+                max_key = max(emotion, key=lambda k: emotion[k])
+                cv2.putText(frame, f"Emotion: {max_key}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                current_time = time.time() - start_time
+                emotion_data['time'].append(current_time)
+                for emo in emotion_data.keys():
+                    if emo != 'time':
+                        emotion_data[emo].append(emotion[emo])
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(detect_emotion(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/emotion_graph')
+def emotion_graph():
+    plt.figure(figsize=(10, 6))
+    for emo in emotion_data.keys():
+        if emo != 'time':
+            plt.plot(emotion_data['time'], emotion_data[emo], label=emo)
+    plt.xlabel('Time (s)')
+    plt.ylabel('Emotion')
+    plt.title('Emotion over Time')
+    plt.legend()
+    plt.grid(True)
+    graph_path = os.path.join(app.config['STATIC_FOLDER'], 'emotion_graph.png')
+    plt.savefig(graph_path)  # Save the graph as a PNG file
+    return send_from_directory(app.config['STATIC_FOLDER'], 'emotion_graph.png')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+<<<<<<<<<<<<<index.py vol #02>>>>>>>>>>>>>>>>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            function updateGraph() {
+                $('#graph').attr('src', '/emotion_graph?' + new Date().getTime());
+            }
+            setInterval(updateGraph, 5000); // Update graph every 5 seconds
+        });
+    </script>
+</head>
+<body>
+    <h1>Emotion Detection</h1>
+    <div style="display: flex; justify-content: space-around;">
+        <div>
+            <h2>Webcam Feed</h2>
+            <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" width="640" height="480">
+        </div>
+        <div>
+            <h2>Emotion Graph</h2>
+            <img id="graph" src="{{ url_for('emotion_graph') }}" alt="Emotion Graph" width="640" height="480">
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+<<<<<<<<<<<<<<<<<<<<<<app.py #03>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+from flask import Flask, render_template, Response, send_from_directory
+import cv2
+from deepface import DeepFace
+import matplotlib.pyplot as plt
+import time
+import os
+
+app = Flask(__name__)
+STATIC_FOLDER = r'P:\Working Directories\Flask\EmoEngage_3.9\static'
+app.config['STATIC_FOLDER'] = STATIC_FOLDER
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+url = 'http://192.168.18.19:4747'
+
+emotion_data = {'time': [], 'anger': [], 'disgust': [], 'fear': [], 'happy': [], 'sad': [], 'surprise': [], 'neutral': []}
+start_time = time.time()
+
+def detect_emotion():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Unable to capture frame")
+            break
+        
+        gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray_image, scaleFactor=1.3, minNeighbors=5)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            face_roi = frame[y:y+h, x:x+w]
+            result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
+            if result:
+                emotion = result[0]['emotion']
+                current_time = time.time() - start_time
+                emotion_data['time'].append(current_time)
+                for emo in emotion_data.keys():
+                    if emo != 'time':
+                        emotion_data[emo].append(emotion.get(emo, 0))  # Ensure emotion exists in the result
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            print("Error: Unable to encode frame")
+            break
+        
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(detect_emotion(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/emotion_graph')
+def emotion_graph():
+    plt.figure(figsize=(10, 6))
+    for emo in emotion_data.keys():
+        if emo != 'time':
+            plt.plot(emotion_data['time'], emotion_data[emo], label=emo)
+    plt.xlabel('Time (s)')
+    plt.ylabel('Emotion')
+    plt.title('Emotion over Time')
+    plt.legend()
+    plt.grid(True)
+    graph_path = os.path.join(app.config['STATIC_FOLDER'], 'emotion_graph.png')
+    plt.savefig(graph_path)  # Save the graph as a PNG file
+    plt.close()  # Close the plot to release resources
+    return send_from_directory(app.config['STATIC_FOLDER'], 'emotion_graph.png')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+<<<<<<<<<<<<<<<<<<<<<<index #03>>>>>>>>>>>>>>>>>>>>>>>>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            function updateGraph() {
+                $('#graph').attr('src', '/emotion_graph?' + new Date().getTime());
+            }
+            setInterval(updateGraph, 5000); // Update graph every 5 seconds
+        });
+    </script>
+</head>
+<body>
+    <h1>Emotion Detection</h1>
+    <div style="display: flex; justify-content: space-around;">
+        <div>
+            <h2>Webcam Feed</h2>
+            <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" width="640" height="480">
+        </div>
+        <div>
+            <h2>Emotion Graph</h2>
+            <img id="graph" src="{{ url_for('emotion_graph') }}" alt="Emotion Graph" width="640" height="480">
+        </div>
+    </div>
+</body>
+</html>
+
+<<<<<<<<<<<<<<<<<<<<<<<<<app.py #04>>>>>>>>>>>>>>>>>>>>
+Two Windows; 1 Video Feed, 1 Emotions Graph
+
+from flask import Flask, render_template, Response, send_from_directory
+import cv2
+from deepface import DeepFace
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import time
+import os
+
+app = Flask(__name__)
+STATIC_FOLDER = r'P:\Working Directories\Flask\EmoEngage_3.9\static'
+app.config['STATIC_FOLDER'] = STATIC_FOLDER
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+url = 'http://192.168.18.19:4747'
+
+emotion_data = {'time': [], 'anger': [], 'disgust': [], 'fear': [], 'happy': [], 'sad': [], 'surprise': [], 'neutral': []}
+start_time = time.time()
+
+def detect_emotion():
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Unable to capture frame")
+            break
+        
+        gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray_image, scaleFactor=1.3, minNeighbors=5)
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            face_roi = frame[y:y+h, x:x+w]
+            result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
+            if result:
+                emotion = result[0]['emotion']
+                current_time = time.time() - start_time
+                emotion_data['time'].append(current_time)
+                for emo in emotion_data.keys():
+                    if emo != 'time':
+                        emotion_data[emo].append(emotion.get(emo, 0))  # Ensure emotion exists in the result
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            print("Error: Unable to encode frame")
+            break
+        
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(detect_emotion(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/emotion_graph')
+def emotion_graph():
+    plt.switch_backend('Agg')  # Switch backend to Agg
+    plt.figure(figsize=(10, 6))
+    for emo in emotion_data.keys():
+        if emo != 'time':
+            plt.plot(emotion_data['time'], emotion_data[emo], label=emo)
+    plt.xlabel('Time (s)')
+    plt.ylabel('Emotion')
+    plt.title('Emotion over Time')
+    plt.legend()
+    plt.grid(True)
+    graph_path = os.path.join(app.config['STATIC_FOLDER'], 'emotion_graph.png')
+    plt.savefig(graph_path)  # Save the graph as a PNG file
+    plt.close()  # Close the plot to release resources
+    return send_from_directory(app.config['STATIC_FOLDER'], 'emotion_graph.png')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion Detection with Attention</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      function updateGraph() {
+        $('#graph').attr('src', '/emotion_graph?' + new Date().getTime());
+      }
+      function updateAttention() {
+        // Fetch attention score using an appropriate method (e.g., AJAX request)
+        $.ajax({
+          url: '/get_attention_score',  // Replace with your route for fetching attention score
+          success: function(data) {
+            $('#attention-score').text('Attention Score: ' + data);
+          }
+        });
+      }
+      setInterval(updateGraph, 5000); // Update graph every 5 seconds
+      setInterval(updateAttention, 2000); // Update attention score every 2 seconds (adjust as needed)
+    });
+  </script>
+</head>
+<body>
+  <h1>Emotion Detection with Attention</h1>
+  <div style="display: flex; justify-content: space-around;">
+    <div>
+      <h2>Webcam Feed</h2>
+      <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" width="640" height="480">
+    </div>
+    <div>
+      <h2>Emotion Graph</h2>
+      <img id="graph" src="{{ url_for('emotion_graph') }}" alt="Emotion Graph" width="640" height="480">
+    </div>
+    <div>
+      <h2>Attention Score</h2>
+      <p id="attention-score">Attention Score: Loading...</p>
+    </div>
+  </div>
+
+  <p>This  is link to Route 2.</p>
+  <a href="/participants">Go to Participants (Route 2)</a>
+  
+  <p>This  is link to Route 3.</p>
+  <a href="/details">Go to Details (Route 3)</a>
+</body>
+</html>
