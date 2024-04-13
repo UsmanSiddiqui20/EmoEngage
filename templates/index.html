@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emotion Detection with Attention</title>
+  <title>EmoEngage.AI</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script>
     $(document).ready(function(){
@@ -23,28 +23,104 @@
       setInterval(updateAttention, 2000); // Update attention score every 2 seconds (adjust as needed)
     });
   </script>
+  <style>
+    body {
+      margin: 0;
+      padding-top: 100px;
+      position: relative;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f6ff; /* Light blue background */
+      color: #333;
+    }
+
+    .container {
+      position: relative;
+      text-align: center;
+    }
+
+    .window {
+      width: 300px;
+      height: 300px;
+      border: 2px solid #4a90e2; /* Blue border */
+      border-radius: 20px; /* Increased border radius */
+      margin: 10px;
+      display: inline-block;
+      position: relative;
+      background-color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Increased shadow */
+    }
+
+    .title {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4a90e2; /* Blue background for title */
+      color: #fff; /* White text color */
+      padding: 5px 10px;
+      border-radius: 10px; /* Increased border radius */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      position: fixed;
+      top: 0;
+      left: 10px;
+      font-weight: bold;
+      color: #fff; /* White text color */
+      background-color: #4a90e2; /* Blue background */
+      padding: 10px;
+      border-radius: 0 0 10px 10px; /* Rounded bottom corners */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Increased shadow */
+    }
+
+    .top-right {
+      position: fixed;
+      top: 0;
+      right: 10px;
+      list-style: none;
+    }
+
+    .top-right li {
+      display: inline;
+      margin-left: 10px;
+    }
+
+    .top-right a {
+      text-decoration: none;
+      color: #4a90e2; /* Blue link color */
+      background-color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px; /* Increased border radius */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease; /* Smooth transition */
+    }
+
+    .top-right a:hover {
+      background-color: #edf3ff; /* Light blue background on hover */
+    }
+  </style>
 </head>
 <body>
-  <h1>Emotion Detection with Attention</h1>
-  <div style="display: flex; justify-content: space-around;">
-    <div>
-      <h2>Webcam Feed</h2>
-      <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" width="640" height="480">
+  <h1>EmoEngage.AI</h1>
+  <ul class="top-right">
+    <li><a href="/page1.html">Page 1</a></li>
+    <li><a href="/page2.html">Page 2</a></li>
+    <li><a href="/page3.html">Page 3</a></li>
+  </ul>
+  <div class="container">
+    <div class="window">
+      <div class="title">Webcam Feed</div>
+      <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" width="300" height="225">
     </div>
-    <div>
-      <h2>Emotion Graph</h2>
-      <img id="graph" src="{{ url_for('emotion_graph') }}" alt="Emotion Graph" width="640" height="480">
+    <div class="window">
+      <div class="title">Emotion Graph</div>
+      <img id="graph" src="{{ url_for('emotion_graph') }}" alt="Emotion Graph" width="300" height="225">
     </div>
-    <div>
-      <h2>Attention Score</h2>
+    <div class="window">
+      <div class="title">Attention Score</div>
       <p id="attention-score">Attention Score: Loading...</p>
     </div>
   </div>
-
-  <p>This  is link to Route 2.</p>
-  <a href="/participants">Go to Participants (Route 2)</a>
-  
-  <p>This  is link to Route 3.</p>
-  <a href="/details">Go to Details (Route 3)</a>
 </body>
 </html>
