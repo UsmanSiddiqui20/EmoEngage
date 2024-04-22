@@ -11,115 +11,87 @@
         $('#graph').attr('src', '/emotion_graph?' + new Date().getTime());
       }
       function updateAttention() {
-        // Fetch attention score using an appropriate method (e.g., AJAX request)
         $.ajax({
-          url: '/get_attention_score',  // Replace with your route for fetching attention score
+          url: '/get_attention_score',
           success: function(data) {
-            $('#attention-score').text('Attention Score: ' + data);
+            $('#attention-score').text('Attention Score: ' + data.attention_score.toFixed(2));
           }
         });
       }
-      setInterval(updateGraph, 5000); // Update graph every 5 seconds
-      setInterval(updateAttention, 2000); // Update attention score every 2 seconds (adjust as needed)
+      setInterval(updateGraph, 3000); // Update graph every 3 seconds
+      setInterval(updateAttention, 2000); // Update attention score every 2 seconds
     });
   </script>
   <style>
     body {
       margin: 0;
-      padding-top: 100px;
-      position: relative;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f6ff; /* Light blue background */
+      padding-top: 50px;
+      font-family: Arial, sans-serif;
+      background-color: #f0f6ff;
       color: #333;
     }
 
     .container {
-      position: relative;
-      text-align: center;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
     }
 
     .window {
-      width: 300px;
-      height: 300px;
-      border: 2px solid #4a90e2; /* Blue border */
-      border-radius: 20px; /* Increased border radius */
-      margin: 10px;
-      display: inline-block;
-      position: relative;
+      border: 2px solid #4a90e2;
+      border-radius: 10px;
       background-color: #fff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Increased shadow */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
     }
 
     .title {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #4a90e2; /* Blue background for title */
-      color: #fff; /* White text color */
-      padding: 5px 10px;
-      border-radius: 10px; /* Increased border radius */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      position: fixed;
-      top: 0;
-      left: 10px;
-      font-weight: bold;
-      color: #fff; /* White text color */
-      background-color: #4a90e2; /* Blue background */
-      padding: 10px;
-      border-radius: 0 0 10px 10px; /* Rounded bottom corners */
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Increased shadow */
-    }
-
-    .top-right {
-      position: fixed;
-      top: 0;
-      right: 10px;
-      list-style: none;
-    }
-
-    .top-right li {
-      display: inline;
-      margin-left: 10px;
-    }
-
-    .top-right a {
-      text-decoration: none;
-      color: #4a90e2; /* Blue link color */
-      background-color: #fff;
+      background-color: #4a90e2;
+      color: #fff;
+      font-size: 16px;
       padding: 8px 16px;
-      border-radius: 20px; /* Increased border radius */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s ease; /* Smooth transition */
+      border-radius: 10px 10px 0 0;
     }
 
-    .top-right a:hover {
-      background-color: #edf3ff; /* Light blue background on hover */
+    .content {
+      padding: 20px;
+    }
+
+    .image {
+      max-width: 100%;
+      height: auto;
+    }
+
+    #attention-score {
+      text-align: center;
+      font-size: 16px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>EmoEngage.AI</h1>
-  <ul class="top-right">
-    <li><a href="/page1.html">Page 1</a></li>
-    <li><a href="/page2.html">Page 2</a></li>
-    <li><a href="/page3.html">Page 3</a></li>
-  </ul>
+  <h1 style="text-align: center;">EmoEngage.AI</h1>
   <div class="container">
     <div class="window">
       <div class="title">Webcam Feed</div>
-      <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" width="300" height="225">
+      <div class="content">
+        <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" class="image">
+      </div>
     </div>
     <div class="window">
       <div class="title">Emotion Graph</div>
-      <img id="graph" src="{{ url_for('emotion_graph') }}" alt="Emotion Graph" width="300" height="225">
+      <div class="content">
+        <img id="graph" src="{{ url_for('static', filename='placeholder.png') }}" alt="Emotion Graph" class="image">
+      </div>
     </div>
     <div class="window">
       <div class="title">Attention Score</div>
-      <p id="attention-score">Attention Score: Loading...</p>
+      <div class="content">
+        <p id="attention-score">Attention Score: Loading...</p>
+      </div>
     </div>
   </div>
 </body>
