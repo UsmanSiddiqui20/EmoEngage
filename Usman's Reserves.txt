@@ -1,0 +1,18 @@
+def plot_emotion_graph(emotion_data):
+    if not emotion_data['time']:
+        print("No data available for plotting")
+        return
+    
+    total_emotion_weights = []  # List to store total emotion weight at each time point
+    for i, time_point in enumerate(emotion_data['time']):
+        total_weight = sum([emotion_data[emotion][i] for emotion in emotion_data.keys() if emotion != 'time'])
+        total_emotion_weights.append(total_weight)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(emotion_data['time'], total_emotion_weights, label='Total Emotion Weight', color='blue')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Total Emotion Weight')
+    plt.title('Total Emotion Weight over Time')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
